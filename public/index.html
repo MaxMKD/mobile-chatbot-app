@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="chat.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <title>Mobile ChatBot</title>
+</head>
+
+<body>
+  <div class="app-container">
+    <header>
+      <h2>Mobile ChatBot</h2>
+      <div class="header-actions">
+        <button id="signout-btn" class="button">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="chat-container">
+      <div id="chat-history"></div>
+      <textarea id="user-input" placeholder="Type your message here..."></textarea>
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const sendBtn = document.getElementById('send-btn');
+    const userInput = document.getElementById('user-input');
+    const chatHistory = document.getElementById('chat-history');
+    const signOutBtn = document.getElementById('signout-btn');
+
+    async function handleErrors(response) {
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.error || 'An error occurred.');
+        if (response.status === 401) window.location.href = '/';
+        throw new Error(errorData.error || 'Unknown error');
+      }
+      return response;
+    }
+
+    function addMessageToChatHistory(prompt, reply, messageId) {
+      const emptyStateMessage = document.querySelector('.empty-state');
+      if (emptyStateMessage) {
+        emptyStateMessage.remove();
+      }
+
+      const messageDiv = document.createElement('div');
+      messageDiv.setAttribute('data-id', messageId); // Add data-id attribute for easy reference
+
+      messageDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="flex: 1;">
+            <strong>You :</strong> ${prompt}
+            <br>
+            <strong>MaxBot:</strong> <span class="bot-response">${reply}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+            <button class="button action-btn delete-btn" data-id="${messageId}">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <button class="button action-btn copy-btn" data-id="${messageId}">
+              <i class="fas fa-copy"></i> 
+            </button>
+          </div>
+        </div>
+        <hr>
+      `;
+
+      chatHistory.appendChild(messageDiv);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    // Function to copy response to clipboard
+    function copyResponse(messageId) {
+      try {
+        // Find the bot's response using the messageId
+        const botResponseElement = document.querySelector(`[data-id="${messageId}"] .bot-response`);
+
+        if (botResponseElement) {
+          // Extract the text content of the bot response
+          const botResponse = botResponseElement.textContent;
+
+          // Copy the response text to the clipboard
+          navigator.clipboard.writeText(botResponse).then(() => {
+            console.log('Bot response copied to clipboard!');
+          }).catch((error) => {
+            console.error('Error copying response:', error);
+          });
+        }
+      } catch (error) {
+        console.error('Error copying response:', error);
+      }
+    }
+
+    // Function to delete message
+    async function deleteMessage(messageId) {
+      try {
+        const response = await fetch(`/history/${messageId}`, { method: 'DELETE' });
+
+        if (response.ok) {
+          const messageDiv = document.querySelector(`[data-id="${messageId}"]`);
+          if (messageDiv) {
+            messageDiv.remove();
+          }
+          loadHistory();
+        } else {
+          const errorData = await response.json();
+          alert(`Error: ${errorData.error}`);
+        }
+      } catch (error) {
+        console.error('Error deleting message:', error);
+        alert('An error occurred while deleting the message.');
+      }
+    }
+
+    // Function to load history of messages
+    async function loadHistory() {
+      try {
+        const response = await fetch('/history');
+        const history = await handleErrors(response).then(res => res.json());
+
+        chatHistory.innerHTML = '';
+
+        if (history.length === 0) {
+          const emptyStateMessage = document.createElement('div');
+          emptyStateMessage.classList.add('empty-state');
+          emptyStateMessage.innerText = 'Looks like you have not had a conversation yet. Start by typing your message and click "Send" to chat with MaxBot!';
+          chatHistory.appendChild(emptyStateMessage);
+        } else {
+          const emptyStateMessage = document.querySelector('.empty-state');
+          if (emptyStateMessage) {
+            emptyStateMessage.remove();
+          }
+
+          history.forEach(h => {
+            addMessageToChatHistory(h.prompt, h.response, h.id);
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    sendBtn.addEventListener('click', async () => {
+      const prompt = userInput.value;
+      if (!prompt) return;
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
+        });
+
+        const data = await handleErrors(response).then(res => res.json());
+
+        if (data.id) {  // Ensure that data.id exists
+          addMessageToChatHistory(prompt, data.reply, data.id);  // Pass the ID
+        } else {
+          console.error('No message ID received.');
+        }
+        userInput.value = '';
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    // Delegate events for delete and copy buttons
+    chatHistory.addEventListener('click', (e) => {
+      if (e.target.closest('.delete-btn')) {
+        const messageId = e.target.closest('.delete-btn').getAttribute('data-id');
+        deleteMessage(messageId);
+      }
+
+      if (e.target.closest('.copy-btn')) {
+        const messageId = e.target.closest('.copy-btn').getAttribute('data-id');
+        copyResponse(messageId);
+      }
+    });
+
+    signOutBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/logout');
+        if (response.ok) {
+          window.location.href = '/login.html';
+        } else {
+          alert('Error during signout. Please try again.');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    loadHistory();
+  </script>
+</body>
+
+</html>

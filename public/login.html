@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="login.css">
+
+  <title>Mobile ChatBot</title>
+</head>
+<body>
+  <div class="login-container">
+    <h2 class="login-title">Mobile ChatBot</h2>
+    
+    <form id="login-form" class="login-form" action="/login" method="POST">
+      <label for="username" class="login-label">Username:</label>
+      <input type="text" id="username" class="login-input" name="username" required>
+      
+      <label for="password" class="login-label">Password:</label>
+      <input type="password" id="password" class="login-input" name="password" required>
+      
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+  </div>
+</body>
+</html>

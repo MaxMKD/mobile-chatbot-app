@@ -1,0 +1,137 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+  }
+
+.chat-container {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  #chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: #f8f9fa;
+    border: 1px solid #ddd; 
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    box-sizing: border-box;
+  }
+  
+  #user-input {
+    padding: 12px;
+    border: 1px solid #ccc; 
+    border-radius: 6px;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  #user-input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  #send-btn {
+    padding: 14px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  #send-btn:hover {
+    background: #0056b3;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    margin-bottom: 16px;
+    background: #ffffff;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  
+  header h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  #signout-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+  
+  #signout-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .action-btn {
+    background-color: #858d93; 
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border: none;
+  }
+  
+  .action-btn:hover {
+    background-color: #5a6268; 
+  }
+  
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .empty-state {
+    text-align: center;
+    color: #888;
+    font-size: 18px;
+    margin-top: 20px;
+    flex-grow: 1;
+    padding: 20px;
+    border: 2px dashed #ccc; /* Optional: for a visual boundary around the message */
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
